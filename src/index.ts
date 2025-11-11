@@ -1,30 +1,39 @@
-// ----- 보안 미들웨어 설정
-// Helmet 사용 -> 보안 HTTP 헤더 추가
-// express-rate-limit 사용 -> 브루트 포스 공격 방지
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
-
-// ----- 기본 express 애플리케이션 설정
 import dotenv from "dotenv";
 import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import admin from "firebase-admin";
+import serviceAccount from "./config/serviceAccountKey.json" with { type: "json" };
+import authRouter from "./modules/auth/auth.routes.js";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
+// Firebase Admin 초기화
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+});
+
+// 보안 미들웨어
 app.use(helmet());
 app.use(
   rateLimit({
-    windowMs: 15 * 60 * 1000, // 15분
-    max: 100, // IP당 요청 제한
+    windowMs: 15 * 60 * 1000,
+    max: 100,
   })
 );
+app.use(cors());
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello Wooooorld!");
+app.use("/auth", authRouter);
+
+app.get("/", (_, res) => {
+  res.send("Hello World!");
 });
 
 app.listen(PORT, () => {
-  console.log(`서버는 http://localhost:${PORT}에서 실행 중`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

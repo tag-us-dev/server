@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --import=tsx/esm --env-file=.env src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "nodemon index.js"
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
